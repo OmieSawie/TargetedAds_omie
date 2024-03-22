@@ -1,15 +1,27 @@
 require("dotenv").config();
 const MongoStore = require("connect-mongo");
 const express = require("express");
-const bodyParser = require('body-parser');
+
+const cors = require("cors");
+const bodyParser = require("body-parser");
+// const cookieParser = require("cookie-parser");
+const session = require("express-session");
 const app = express();
 
 const advertisementRouter = require("./routes/advertisementRoutes");
 const userRouter = require("./routes/userRoutes");
+const authRouter = require("./routes/authRoutes");
 
 const MONGO_URI = process.env.mongo_uri;
+const SECRET_KEY = "keyboard cat";
 
-
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    optionsSuccessStatus: 200,
+    credentials: true,
+  })
+);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -23,18 +35,31 @@ app.use(function (err, req, res, next) {
   res.sendStatus(err.status || 500);
 });
 
-require('./models/advertisementModel');
-require('./models/userModel');
+// Session storage configuration
+app.use(
+  session({
+    secret: SECRET_KEY,
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: MONGO_URI,
+      dbName: "sessions",
+    }),
+    cookie: {
+      // 10 minutes age for cookies, debug setting
+      maxAge: 10 * 60 * 1000,
+      secure: app.get("env") === "production",
+    },
+  })
+);
 
 
+require("./models/advertisementModel");
+require("./models/userModel");
 
+app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/advertisement", advertisementRouter);
 app.use("/api/v1/user", userRouter);
 
-// Start the server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
 
 module.exports = app;

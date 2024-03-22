@@ -21,14 +21,10 @@ const userSchema = new Schema({
   role: {
     type: String,
     required: [true, "Role of the user should be specified"],
-    enum: ["student", "admin", "superAdmin"],
-    default: "student",
+    enum: ["customer", "business", "superAdmin"],
+    default: "customer",
   },
-  rollNo: {
-    type: String,
-    required: false,
-  },
-  bookings: [{ type: Schema.Types.ObjectId, ref: "booking" }],
+   advertisement: [{ type: Schema.Types.ObjectId, ref: "advertisement" }],
 });
 
 module.exports = mongoose.model("User", userSchema);

@@ -6,9 +6,9 @@ const advertisementSchema = new Schema({
     type: String,
     required: [true, "Title should be specified"],
   },
-  // tags:[{
-  //   type:String
-  // }],
+  tags:[{
+    type:String
+  }],
   description: {
     type: String,
     required: [true, "Description should be specified"],
