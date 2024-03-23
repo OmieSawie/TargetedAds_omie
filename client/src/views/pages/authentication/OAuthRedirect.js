@@ -14,7 +14,7 @@ const OAuthRedirect = () => {
       console.log("code=",code);
             loginGoogleUser(code)
                 .then(() => {
-                    navigate('/free');
+                    navigate('/');
                 })
                 .catch((err) => {
                     console.error('Error found while trying to send code');
@@ -22,7 +22,6 @@ const OAuthRedirect = () => {
                     navigate('/pages/login/login3');
                 });
     }, [code, navigate]);
-
     return <Loader />;
 };
 

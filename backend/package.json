@@ -27,6 +27,7 @@
     "hbs": "^4.2.0",
     "mongodb": "^6.5.0",
     "mongoose": "^8.2.2",
-    "nodemailer": "^6.9.13"
+    "nodemailer": "^6.9.13",
+    "npm-check-updates": "^16.14.17"
   }
 }

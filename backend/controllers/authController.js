@@ -5,7 +5,7 @@ const { validationResult } = require("express-validator");
 const createError = require("http-errors");
 const { OAuth2Client } = require("google-auth-library");
 const User = require("../models/userModel");
-
+const session = require("express-session")
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI;
@@ -24,7 +24,7 @@ async function googleRedirect(req, res, next) {
     try {
       const oAuth2Client = getOAuth2Client();
 
-    console.log("Making a new client");
+      console.log("Making a new client");
       // Generate code challenge & verifier (PKCE)
       const { codeVerifier, codeChallenge } =
         await oAuth2Client.generateCodeVerifierAsync();
@@ -36,7 +36,6 @@ async function googleRedirect(req, res, next) {
         access_type: "offline",
         code_challenge: codeChallenge,
         code_challenge_method: "S256",
-
         scope: [
           "openid",
           "https://www.googleapis.com/auth/userinfo.profile",
@@ -57,7 +56,8 @@ async function googleRedirect(req, res, next) {
  */
 async function googleLogin(req, res, next) {
   const errors = validationResult(req);
-  console.log("Initiate new user");
+  console.log("Initiate new user", req.session);
+  await req.session.save();
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
@@ -68,10 +68,11 @@ async function googleLogin(req, res, next) {
   const code = req.body.code;
   const codeVerifier = req.session.codeVerifier;
 
+
   if (req.session.credentials) {
     // If already logged in, do not go through the OAuth flow
     res.status(201).json({ warning: "Already logged in" });
-      console.log("Already logged in");
+    console.log("Already logged in");
   } else {
     try {
       // Request for an access token.
@@ -79,7 +80,7 @@ async function googleLogin(req, res, next) {
 
       oAuth2Client.setCredentials(tokens);
       try {
-          console.log("Initiate new user 2");
+        console.log("Initiate new user 2");
 
         // Get userinfo endpoint from OpenID Connect Discovery document
         const oidConfRes = await oAuth2Client.request({
@@ -94,23 +95,26 @@ async function googleLogin(req, res, next) {
           method: "GET",
         });
 
-        // Attach the user's email address to the session
+        // console.log("user info ",userinfo);
+        // Attach the user's email  address to the session
         req.session.user = {
           emailId: userinfo.data.email,
           userName: userinfo.data.name,
           picture: userinfo.data.picture,
+
         };
       } catch (err) {
+        console.log("Token error ", err);
         return next(err);
       }
 
       // Storing credentials in session storage
       req.session.credentials = tokens;
-
       try {
         const user = await User.findOne({
           emailId: req.session.user.emailId,
         }).exec();
+        console.log("session user", req.session.user);
 
         if (user) {
           // Update the user's name if it has changed.
@@ -120,7 +124,7 @@ async function googleLogin(req, res, next) {
           }
 
           // If user is registered, send all details of the user
-          const { emailId, userName, phoneNo, role, rollNo } = user;
+          const { emailId, userName, phoneNo, role } = user;
           const userDetails = {
             registered: true,
             emailId,
@@ -129,15 +133,13 @@ async function googleLogin(req, res, next) {
             role,
             picture: req.session.user.picture,
           };
-          if (rollNo) {
-            userDetails.rollNo = rollNo;
-          }
           res.status(200).json(userDetails);
+          console.log("user creation successful", userDetails);
         } else {
           // Send the details fetched from OIDC
           const { emailId, userName, picture } = req.session.user;
 
-          // Get emailId and userName from session, phoneNo and rollNo from request
+          // Get emailId and userName from session, phoneNo from request
           // body, and role assigned by default is "student".
           const newUser = new User({
             emailId,
@@ -155,6 +157,7 @@ async function googleLogin(req, res, next) {
           });
         }
       } catch (err) {
+        console.log("storing credential in session storage ", err);
         return next(err);
       }
     } catch (err) {
@@ -162,6 +165,9 @@ async function googleLogin(req, res, next) {
       next(createError(401, "Invalid code grant request"));
     }
   }
+  console.log("Finally user made", req.session);
+  await req.session.save();
+  res.status(200);
 }
 
 async function logout(req, res, next) {
@@ -193,15 +199,17 @@ async function logout(req, res, next) {
  * authenticated.
  */
 async function isAuthenticated(req, res, next) {
+  console.log("request session", req.session);
   if (req.session.credentials) {
     // Try to find the user among the registered users
     req.user = await User.findOne({ emailId: req.session.user.emailId }).exec();
-    await req.user.populate("bookings");
+    // await req.user.populate("");
     next();
   } else {
     // Return 401 Unauthorized if user is not authenticated
     res.status(401).json({ errors: "User is not authenticated" });
   }
+
 }
 
 module.exports = {
@@ -210,3 +218,7 @@ module.exports = {
   logout,
   isAuthenticated,
 };
+
+
+
+

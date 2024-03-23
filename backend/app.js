@@ -4,7 +4,6 @@ const express = require("express");
 
 const cors = require("cors");
 const bodyParser = require("body-parser");
-// const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const app = express();
 
@@ -13,7 +12,7 @@ const userRouter = require("./routes/userRoutes");
 const authRouter = require("./routes/authRoutes");
 
 const MONGO_URI = process.env.mongo_uri;
-const SECRET_KEY = "keyboard cat";
+const SECRET_KEY = "keyboardcat";
 
 app.use(
   cors({
@@ -22,6 +21,7 @@ app.use(
     credentials: true,
   })
 );
+app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -44,14 +44,18 @@ app.use(
     store: MongoStore.create({
       mongoUrl: MONGO_URI,
       dbName: "sessions",
+      autoRemove: 'interval',
+      autoRemoveInterval: 10,
     }),
     cookie: {
       // 10 minutes age for cookies, debug setting
       maxAge: 10 * 60 * 1000,
       secure: app.get("env") === "production",
     },
-  })
+     })
 );
+
+
 
 
 require("./models/advertisementModel");

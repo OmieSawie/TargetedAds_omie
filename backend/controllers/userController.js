@@ -71,9 +71,7 @@ exports.patchUserInfo = async (req, res, next) => {
       role,
       picture: req.session.user.picture,
     };
-    if (rollNo) {
-      userDetails.rollNo = rollNo;
-    }
+
     res.status(200).json(userDetails);
   } catch (err) {
     next(err);
@@ -92,9 +90,6 @@ exports.getCurrentUser = async (req, res, next) => {
   };
   if (phoneNo) {
     userDetails.phoneNo = phoneNo;
-  }
-  if (rollNo) {
-    userDetails.rollNo = rollNo;
   }
   res.status(200).json(userDetails);
 };

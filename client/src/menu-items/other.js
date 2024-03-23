@@ -14,7 +14,7 @@ const other = {
       id: "sample-page",
       title: "Ad an Advertisement",
       type: "item",
-      url: "/sample-page",
+      url: "/addAnAdvertisement",
       icon: icons.IconBrandChrome,
       breadcrumbs: false,
     },

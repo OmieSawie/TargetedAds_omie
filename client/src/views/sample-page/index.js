@@ -10,7 +10,9 @@ import {
 } from "@mui/material";
 import MainCard from "ui-component/cards/MainCard";
 
+import axiosInstance from "../../services/axiosInstance";
 import axios from "axios";
+var querystring = require("querystring");
 
 const ImageUploadForm = () => {
   const [title, setTitle] = useState("");
@@ -41,23 +43,29 @@ const ImageUploadForm = () => {
 
   const handleUpload = async () => {
     setIsLoading(true);
+    console.log(title, description);
     try {
-      const formData = new FormData();
+      const formData = new URLSearchParams();
       formData.append("title", title);
-      formData.append("image", selectedFile);
+      if (selectedFile) {
+        formData.append("imageUrl", selectedFile.name);
+      }
       formData.append("description", description);
       formData.append("tags", JSON.stringify(tags));
+      console.log("Sending form data ", formData.get("title"));
 
-      console.log(formData.get("tags"));
-      const response = await axios.post("/api/upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
+      const response = await axiosInstance.post(
+        "/advertisement/createAdvertisement",
+        formData,
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
         },
-      });
-
+      );
       console.log("Upload successful:", response.data);
     } catch (error) {
-      console.error("Error uploading image:", error);
+      console.error(" Error uploading image:", error);
     } finally {
       setIsLoading(false);
     }

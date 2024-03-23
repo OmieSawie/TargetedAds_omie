@@ -13,6 +13,14 @@ const advertisementSchema = new Schema({
     type: String,
     required: [true, "Description should be specified"],
   },
+  imageUrl:{
+    type:String,
+    required:[true,"Image path must be specified"],
+  },
+  businessName:{
+    type:String,
+    required:[true,"Business name must be specified"]
+  },
  });
 
 module.exports = mongoose.model("advertisement", advertisementSchema);
