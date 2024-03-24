@@ -15,18 +15,26 @@ const AdvertisementList = () => {
     console.log(advertisements);
   }, []);
 
-  return (
-    <div>
-      <h1>Advertisement List</h1>
-      {advertisements &&
-        advertisements.map((advertisement) => (
-          <AdvertisementCard
-            key={advertisement._id}
-            advertisement={advertisement}
-          />
-        ))}
-    </div>
-  );
+  if (advertisements.length !== 0) {
+    return (
+      <div>
+        <h1>Advertisement List</h1>
+        {advertisements &&
+          advertisements.map((advertisement) => (
+            <AdvertisementCard
+              key={advertisement._id}
+              advertisement={advertisement}
+            />
+          ))}
+      </div>
+    );
+  } else {
+    return (
+      <div>
+        <h1>Login to continue</h1>
+      </div>
+    );
+  }
 };
 
 export default AdvertisementList;

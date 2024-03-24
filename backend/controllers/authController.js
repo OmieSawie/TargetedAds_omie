@@ -195,8 +195,10 @@ async function isAuthenticated(req, res, next) {
   // console.log("request session", req.session);
   if (req.session.credentials) {
     // Try to find the user among the registered users
-    // req.user = await User.findOne({ emailId: req.session.user.emailId }).exec();
+    const user = await User.findOne({ emailId: req.session.user.emailId }).exec();
           // await req.user.populate("");
+    // req.session = req.user;
+    // req.session.save();
       next();
   } else {
     // Return 401 Unauthorized if user is not authenticated
@@ -236,10 +238,26 @@ async function isAuthenticatedAsBusiness(req, res, next) {
   }
 }
 
+async function getUser(req,res){
+    // console.log("request session", req.session);
+  if (req.session.credentials) {
+    // Try to find the user among the registered users
+    const user = await User.findOne({ emailId: req.session.user.emailId }).exec();
+          // await req.user.populate("");
+    res.status(200).json({user});
+    // req.session.save();
+  } else {
+    // Return 401 Unauthorized if user is not authenticated
+    res.status(401).json({ errors: "User is not authenticated" });
+  }
+
+}
+
 module.exports = {
   googleRedirect,
   googleLogin,
   logout,
   isAuthenticated,
   isAuthenticatedAsBusiness,
+  getUser
 };

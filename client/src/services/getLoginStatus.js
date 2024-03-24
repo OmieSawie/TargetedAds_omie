@@ -1,7 +1,8 @@
 import axiosInstance from "./axiosInstance";
 
 const getLoginStatus = async () => {
-  await axiosInstance.get("/auth/status");
+  const result = await axiosInstance.get("/auth/status");
+  return result;
 };
 
 export default getLoginStatus;

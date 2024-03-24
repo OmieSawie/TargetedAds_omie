@@ -1,16 +1,35 @@
-// material-ui
-import { Typography } from '@mui/material';
-
-// project imports
-import NavGroup from './NavGroup';
-import menuItem from 'menu-items';
+import { useEffect, useState } from "react";
+import { Typography } from "@mui/material";
+import NavGroup from "./NavGroup";
+import getLoginStatusAsBusiness from "services/getLoginStatusAsBusiness";
+import dashboard from "../../../../menu-items/dashboard";
+import pages from "../../../../menu-items/pages";
+import other from "../../../../menu-items/other";
 
 // ==============================|| SIDEBAR MENU LIST ||============================== //
 
 const MenuList = () => {
-  const navItems = menuItem.items.map((item) => {
+  const [menuItems, setMenuItems] = useState(null);
+
+  useEffect(() => {
+    async function fetchMenuItems() {
+      try {
+        await getLoginStatusAsBusiness();
+        setMenuItems([dashboard, pages, other]);
+      } catch (error) {
+        console.error("Error fetching login status:", error);
+        // Return default menu items in case of an error
+        setMenuItems([dashboard, pages]);
+      }
+    }
+    fetchMenuItems();
+  }, []);
+
+  if (!menuItems) return null;
+
+  const navItems = menuItems.map((item) => {
     switch (item.type) {
-      case 'group':
+      case "group":
         return <NavGroup key={item.id} item={item} />;
       default:
         return (

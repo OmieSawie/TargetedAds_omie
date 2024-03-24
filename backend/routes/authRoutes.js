@@ -7,9 +7,11 @@ router.get("/statusAsBusiness", authController.isAuthenticatedAsBusiness, (req, 
   res.sendStatus(204);
 });
 
-router.get("/status", authController.isAuthenticated, (req, res) => {
-  res.sendStatus(204);
-});
+// router.get("/status", authController.isAuthenticated, (req, res) => {
+//   res.sendStatus(204);
+// });
+
+router.get("/status",authController.getUser)
 
 router.get("/google/redirect", authController.googleRedirect);
 
