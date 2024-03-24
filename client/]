@@ -1,0 +1,18 @@
+import dashboard from "./dashboard";
+import pages from "./pages";
+import other from "./other";
+import getLoginStatusAsBusiness from "../services/getLoginStatusAsBusiness";
+// ==============================|| MENU ITEMS ||============================== //
+
+const getMenuItems = async () => {
+  const result = await getLoginStatusAsBusiness();
+
+  console.log(result);
+};
+getMenuItems();
+
+const menuItems = {
+  items: [dashboard, pages, other],
+};
+
+export default menuItems;

@@ -25,7 +25,9 @@ const userSchema = new Schema({
     default: "customer",
   },
   tags:{
-    type: [String]
+    type: [String],
+    required: true,
+    default: ["tag1","tag2"]
   },
    advertisement: [{ type: Schema.Types.ObjectId, ref: "advertisement" }],
 });

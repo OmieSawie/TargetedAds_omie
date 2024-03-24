@@ -192,7 +192,7 @@ async function logout(req, res, next) {
 }
 
 async function isAuthenticated(req, res, next) {
-  console.log("request session", req.session);
+  // console.log("request session", req.session);
   if (req.session.credentials) {
     // Try to find the user among the registered users
     // req.user = await User.findOne({ emailId: req.session.user.emailId }).exec();
@@ -212,7 +212,7 @@ async function isAuthenticated(req, res, next) {
  * authenticated.
  */
 async function isAuthenticatedAsBusiness(req, res, next) {
-  console.log("request session", req.session);
+  // console.log("request session", req.session);
   if (req.session.credentials) {
     // Try to find the user among the registered users
     req.user = await User.findOne({ emailId: req.session.user.emailId }).exec();

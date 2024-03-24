@@ -8,11 +8,36 @@ const getAllAdvertisements = async (req, res) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
-  const advertisementFilter = {};
-
-  const tags = req.session.user.tags;
-
+  if (req.session.credentials) {
+    // Try to find the user among the registered users
+    req.user = await userModel.findOne({ emailId: req.session.user.emailId }).exec();
+    req.session.user = req.user;
+    await req.session.save();
+    if (req.user.role == "business") {
+      // Filter advertisements as per email of business user
+      emailId = req.user.emailId;
+      console.log("emailId",emailId)
+      advertisementModel.find({businessName:emailId}).then((advertisementFilter)=>{
+      console.log("advertisements ",advertisementFilter);
+      res.status(200).json({ advertisementFilter });
+      })
+    } else {
+      // Return advertisemts by filtering as per tags
+      tagsReq = req.user.tags;
+      advertisementModel.find({tags:{$in:tagsReq}}).then((advertisementFilter)=>{
+        console.log("advertisements ",advertisementFilter);
+        res.status(200).json({ advertisementFilter });
+      }).catch((error)=>{
+        console.error('Error fetching advertisements:', error);
+        res.status(500).json({ error: 'Internal server error' });
+      } );
+    }
+  } else {
+    // Return 401 Unauthorized if user is not authenticated
+    res.status(401).json({ errors: "User is not authenticated" });
+  }
 };
+
 const getOneAdvertisement = async (req, res) => {
   try {
     const advertisements = await advertisementModel.findById(
@@ -44,11 +69,18 @@ const sendAdvertisementRequest = async (advertisement, res, user = null) => {
 
 const createAdvertisement = async (req, res) => {
   console.log("req reached controller", req.body);
-  const { title,tags,description,imageUrl } = req.body;
-  console.log("req session user",req.session);
+  const { title, description, imageUrl } = req.body;
+  const tags = JSON.parse(req.body.tags);
+  // console.log("req session user", req.session);
   // const businessName = req.session.session;
   const businessName = req.session.user.emailId || "Test@mail.com";
-  const newAdvertisement = new advertisementModel({ title,tags, description,imageUrl,businessName });
+  const newAdvertisement = new advertisementModel({
+    title,
+    tags,
+    description,
+    imageUrl,
+    businessName,
+  });
   console.log("Advertisement is: ", newAdvertisement);
 
   try {

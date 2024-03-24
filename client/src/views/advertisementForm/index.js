@@ -15,8 +15,7 @@ import axiosInstance from "../../services/axiosInstance";
 
 const ImageUploadForm = () => {
   const [title, setTitle] = useState("");
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
+  const [imageUrl, setImageUrl] = useState(""); // State for image URL input
   const [isLoading, setIsLoading] = useState(false);
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState([]);
@@ -28,18 +27,9 @@ const ImageUploadForm = () => {
     setTitle(e.target.value);
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setSelectedFile(file);
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setPreviewUrl(null);
-    }
+  // Handle change for image URL input
+  const handleImageUrlChange = (e) => {
+    setImageUrl(e.target.value);
   };
 
   const handleUpload = async () => {
@@ -48,15 +38,13 @@ const ImageUploadForm = () => {
     try {
       const formData = new URLSearchParams();
       formData.append("title", title);
-      if (selectedFile) {
-        formData.append("imageUrl", selectedFile.name);
-      }
+      formData.append("imageUrl", imageUrl); // Append image URL to formData
       formData.append("description", description);
       formData.append("tags", JSON.stringify(tags));
       console.log("Sending form data ", formData.get("title"));
 
       const response = await axiosInstance.post(
-        "/advertisement/createAdvertisement",
+        "/advertisements/createAdvertisement",
         formData,
         {
           headers: {
@@ -116,6 +104,17 @@ const ImageUploadForm = () => {
           </Grid>
           <Grid item xs={12}>
             <TextField
+              id="imageUrl"
+              label="Image URL"
+              fullWidth
+              value={imageUrl}
+              onChange={handleImageUrlChange} // Call handleImageUrlChange on change
+              variant="outlined"
+            />
+          </Grid>
+          {/* Tags input */}
+          <Grid item xs={12}>
+            <TextField
               id="tags"
               label="Tags"
               fullWidth
@@ -136,6 +135,7 @@ const ImageUploadForm = () => {
               Add Tag
             </Button>
           </Grid>
+          {/* Display added tags */}
           <Grid item xs={12}>
             {tags.map((tag, index) => (
               <Chip
@@ -151,42 +151,7 @@ const ImageUploadForm = () => {
             ))}
           </Grid>
           <Grid item xs={12}>
-            <input
-              accept="image/*"
-              style={{ display: "none" }}
-              id="image-upload"
-              type="file"
-              onChange={handleFileChange}
-            />
-            <label htmlFor="image-upload">
-              <Button variant="contained" component="span">
-                Choose File
-              </Button>
-            </label>
-            {selectedFile && (
-              <Typography
-                variant="body1"
-                gutterBottom
-                style={{ marginTop: "8px" }}
-              >
-                Selected File: {selectedFile.name}
-              </Typography>
-            )}
-          </Grid>
-          <Grid item xs={12}>
-            {previewUrl && (
-              <img
-                src={previewUrl}
-                alt="Preview"
-                style={{
-                  maxWidth: "100%",
-                  maxHeight: "300px",
-                  marginTop: "8px",
-                }}
-              />
-            )}
-          </Grid>
-          <Grid item xs={12}>
+            {/* Description input */}
             <TextField
               id="description"
               label="Description"
@@ -199,15 +164,17 @@ const ImageUploadForm = () => {
             />
           </Grid>
           <Grid item xs={12}>
+            {/* Error and success messages */}
             {error && <Alert severity="error">{error}</Alert>}
             {successMessage && (
               <Alert severity="success">{successMessage}</Alert>
             )}
+            {/* Upload button */}
             <Button
               variant="contained"
               color="primary"
               onClick={handleUpload}
-              disabled={!selectedFile || isLoading}
+              disabled={!imageUrl || isLoading} // Disable if imageUrl is empty or loading
             >
               {isLoading ? <CircularProgress size={24} /> : "Upload"}
             </Button>

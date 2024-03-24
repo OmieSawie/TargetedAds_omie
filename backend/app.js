@@ -62,7 +62,7 @@ require("./models/advertisementModel");
 require("./models/userModel");
 
 app.use("/api/v1/auth", authRouter);
-app.use("/api/v1/advertisement", advertisementRouter);
+app.use("/api/v1/advertisements", advertisementRouter);
 app.use("/api/v1/user", userRouter);
 
 

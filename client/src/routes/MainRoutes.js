@@ -23,7 +23,9 @@ const DashboardDefault = Loadable(
 // );
 
 // sample page routing
-const SamplePage = Loadable(lazy(() => import("views/sample-page")));
+const AdvertisementFormPage = Loadable(
+  lazy(() => import("views/advertisementForm")),
+);
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -91,7 +93,7 @@ const MainRoutes = {
     // },
     {
       path: "addAnAdvertisement",
-      element: <SamplePage />,
+      element: <AdvertisementFormPage />,
     },
   ],
 };
