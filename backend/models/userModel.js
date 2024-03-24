@@ -24,6 +24,9 @@ const userSchema = new Schema({
     enum: ["customer", "business", "superAdmin"],
     default: "customer",
   },
+  tags:{
+    type: [String]
+  },
    advertisement: [{ type: Schema.Types.ObjectId, ref: "advertisement" }],
 });
 

@@ -7,12 +7,11 @@ import {
   Typography,
   TextField,
   Chip,
+  Alert,
 } from "@mui/material";
 import MainCard from "ui-component/cards/MainCard";
 
 import axiosInstance from "../../services/axiosInstance";
-import axios from "axios";
-var querystring = require("querystring");
 
 const ImageUploadForm = () => {
   const [title, setTitle] = useState("");
@@ -22,6 +21,8 @@ const ImageUploadForm = () => {
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState([]);
   const [newTag, setNewTag] = useState("");
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
 
   const handleTitleChange = (e) => {
     setTitle(e.target.value);
@@ -64,8 +65,12 @@ const ImageUploadForm = () => {
         },
       );
       console.log("Upload successful:", response.data);
+      setSuccessMessage("Upload successful");
     } catch (error) {
       console.error(" Error uploading image:", error);
+      setError(
+        "User must be registered as a business to submit an Advertisement",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -194,6 +199,10 @@ const ImageUploadForm = () => {
             />
           </Grid>
           <Grid item xs={12}>
+            {error && <Alert severity="error">{error}</Alert>}
+            {successMessage && (
+              <Alert severity="success">{successMessage}</Alert>
+            )}
             <Button
               variant="contained"
               color="primary"

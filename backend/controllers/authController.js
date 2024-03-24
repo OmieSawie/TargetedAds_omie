@@ -5,7 +5,7 @@ const { validationResult } = require("express-validator");
 const createError = require("http-errors");
 const { OAuth2Client } = require("google-auth-library");
 const User = require("../models/userModel");
-const session = require("express-session")
+const session = require("express-session");
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI;
@@ -68,7 +68,6 @@ async function googleLogin(req, res, next) {
   const code = req.body.code;
   const codeVerifier = req.session.codeVerifier;
 
-
   if (req.session.credentials) {
     // If already logged in, do not go through the OAuth flow
     res.status(201).json({ warning: "Already logged in" });
@@ -101,7 +100,6 @@ async function googleLogin(req, res, next) {
           emailId: userinfo.data.email,
           userName: userinfo.data.name,
           picture: userinfo.data.picture,
-
         };
       } catch (err) {
         console.log("Token error ", err);
@@ -193,23 +191,49 @@ async function logout(req, res, next) {
   });
 }
 
+async function isAuthenticated(req, res, next) {
+  console.log("request session", req.session);
+  if (req.session.credentials) {
+    // Try to find the user among the registered users
+    // req.user = await User.findOne({ emailId: req.session.user.emailId }).exec();
+          // await req.user.populate("");
+      next();
+  } else {
+    // Return 401 Unauthorized if user is not authenticated
+    res.status(401).json({ errors: "User is not authenticated" });
+  }
+}
+
+
+
 /**
  * Middleware function, that can be used to check for authentication on
  * protected API endpoints. Returns 401 Unauthorized if user is not
  * authenticated.
  */
-async function isAuthenticated(req, res, next) {
+async function isAuthenticatedAsBusiness(req, res, next) {
   console.log("request session", req.session);
   if (req.session.credentials) {
     // Try to find the user among the registered users
     req.user = await User.findOne({ emailId: req.session.user.emailId }).exec();
-    // await req.user.populate("");
-    next();
+    req.session.user = req.user;
+    await req.session.save();
+    if (req.user.role == "business") {
+      // await req.user.populate("");
+      next();
+    } else {
+      // Return 401 Unauthorized if user is not a business
+      res
+        .status(401)
+        .json({
+          errors:
+            "User must be registered as a business in order to post an advertisement",
+        });
+    }
   } else {
     // Return 401 Unauthorized if user is not authenticated
     res.status(401).json({ errors: "User is not authenticated" });
   }
-
 }
 
 module.exports = {
@@ -217,8 +241,5 @@ module.exports = {
   googleLogin,
   logout,
   isAuthenticated,
+  isAuthenticatedAsBusiness,
 };
-
-
-
-

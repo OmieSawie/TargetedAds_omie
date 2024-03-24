@@ -8,6 +8,10 @@ const getAllAdvertisements = async (req, res) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
+  const advertisementFilter = {};
+
+  const tags = req.session.user.tags;
+
 };
 const getOneAdvertisement = async (req, res) => {
   try {

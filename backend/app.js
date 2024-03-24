@@ -45,11 +45,11 @@ app.use(
       mongoUrl: MONGO_URI,
       dbName: "sessions",
       autoRemove: 'interval',
-      autoRemoveInterval: 10,
+      autoRemoveInterval: 1000,
     }),
     cookie: {
-      // 10 minutes age for cookies, debug setting
-      maxAge: 10 * 60 * 1000,
+      // 1000 minutes age for cookies, debug setting
+      maxAge: 1000 * 60 * 1000,
       secure: app.get("env") === "production",
     },
      })

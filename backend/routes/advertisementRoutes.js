@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const advertisementController = require("../controllers/advertisementController");
-const { isAuthenticated } = require("../controllers/authController");
+const { isAuthenticated, isAuthenticatedAsBusiness } = require("../controllers/authController");
 const getAdvertisementSchema = require("../schemas/getAdvertisementSchema");
 
 router.get(
@@ -19,19 +19,19 @@ router.get(
 
 router.post(
   "/createAdvertisement",
-      isAuthenticated,
+      isAuthenticatedAsBusiness,
   advertisementController.createAdvertisement
 );
 
 router.delete(
   "/:advertisementIdId",
-      isAuthenticated,
+      isAuthenticatedAsBusiness,
   advertisementController.deleteAdvertisement
 );
 
 router.patch(
   "/:advertisementId",
-        isAuthenticated,
+        isAuthenticatedAsBusiness,
   advertisementController.updateAdvertisement
 );
 
